@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using CRM_Vendas.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_Vendas_API.Repositories

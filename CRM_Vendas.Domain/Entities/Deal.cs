@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using CRM_Vendas_API.Entities.Models.Enums;
 
-namespace CRM_Vendas_API.Entities.Models
+namespace CRM_Vendas.Domain.Entities
 {
     public class Deal
     {

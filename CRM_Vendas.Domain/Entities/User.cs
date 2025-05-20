@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CRM_Vendas_API.Entities.Models
+namespace CRM_Vendas.Domain.Entities
 {
     public class User
     {

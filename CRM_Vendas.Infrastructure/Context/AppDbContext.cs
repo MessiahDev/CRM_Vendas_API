@@ -1,4 +1,4 @@
-﻿using CRM_Vendas_API.Entities.Models;
+﻿using CRM_Vendas.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_Vendas_API.Context

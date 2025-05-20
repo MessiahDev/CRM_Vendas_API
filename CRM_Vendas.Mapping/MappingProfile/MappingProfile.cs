@@ -4,7 +4,7 @@ using CRM_Vendas_API.Entities.DTOs.DealDto;
 using CRM_Vendas_API.Entities.DTOs.InteractionDto;
 using CRM_Vendas_API.Entities.DTOs.LeadDto;
 using CRM_Vendas_API.Entities.DTOs.UserDto;
-using CRM_Vendas_API.Entities.Models;
+using CRM_Vendas.Domain.Entities;
 
 namespace CRM_Vendas_API.MappingProfile
 {

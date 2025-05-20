@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
+using CRM_Vendas.Domain.Entities;
 using CRM_Vendas_API.Context;
 using CRM_Vendas_API.Entities.DTOs.InteractionDto;
-using CRM_Vendas_API.Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_Vendas_API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class InteractionController : ControllerBase

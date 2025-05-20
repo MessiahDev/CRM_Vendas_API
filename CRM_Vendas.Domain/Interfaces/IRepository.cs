@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace CRM_Vendas_API.Repositories
+namespace CRM_Vendas.Domain.Interfaces
 {
     public interface IRepository<T> where T : class
     {
