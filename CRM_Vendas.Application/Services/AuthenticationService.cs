@@ -37,8 +37,8 @@ namespace CRM_Vendas.Application.Services
 
             var claims = new[]
 {
-                new Claim(ClaimTypes.Name, email),
-                new Claim(ClaimTypes.GivenName, name)
+                new Claim(ClaimTypes.Name, name),
+                new Claim(ClaimTypes.Email, email)
             };
 
             var token = new JwtSecurityToken(
