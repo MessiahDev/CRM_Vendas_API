@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using CRM_Vendas.Domain.Entities;
-using CRM_Vendas_API.Context;
+using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas_API.Entities.DTOs.LeadDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CRM_Vendas_API.Controllers
 {
@@ -13,13 +12,13 @@ namespace CRM_Vendas_API.Controllers
     [Route("api/[controller]")]
     public class LeadController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ILeadRepository _leadRepository;
         private readonly ILogger<LeadController> _logger;
         private readonly IMapper _mapper;
 
-        public LeadController(AppDbContext context, ILogger<LeadController> logger, IMapper mapper)
+        public LeadController(ILeadRepository leadRepository, ILogger<LeadController> logger, IMapper mapper)
         {
-            _context = context;
+            _leadRepository = leadRepository;
             _logger = logger;
             _mapper = mapper;
         }
@@ -29,10 +28,7 @@ namespace CRM_Vendas_API.Controllers
         public async Task<ActionResult<IEnumerable<LeadDto>>> GetAll()
         {
             _logger.LogInformation("Buscando todos os leads.");
-            var leads = await _context.Leads
-                .Include(l => l.Customer)
-                .Include(l => l.User)
-                .ToListAsync();
+            var leads = await _leadRepository.GetAllAsync();
 
             return Ok(_mapper.Map<IEnumerable<LeadDto>>(leads));
         }
@@ -42,10 +38,7 @@ namespace CRM_Vendas_API.Controllers
         public async Task<ActionResult<LeadDto>> GetById(int id)
         {
             _logger.LogInformation("Buscando lead com id {LeadId}", id);
-            var lead = await _context.Leads
-                .Include(l => l.Customer)
-                .Include(l => l.User)
-                .FirstOrDefaultAsync(l => l.Id == id);
+            var lead = await _leadRepository.GetByIdAsync(id);
 
             if (lead == null)
             {
@@ -65,8 +58,7 @@ namespace CRM_Vendas_API.Controllers
             var lead = _mapper.Map<Lead>(dto);
             lead.CreatedAt = DateTime.UtcNow;
 
-            _context.Leads.Add(lead);
-            await _context.SaveChangesAsync();
+            await _leadRepository.AddAsync(lead);
 
             var leadDto = _mapper.Map<LeadDto>(lead);
 
@@ -79,7 +71,7 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Atualizando lead com id {LeadId}", id);
 
-            var lead = await _context.Leads.FindAsync(id);
+            var lead = await _leadRepository.GetByIdAsync(id);
             if (lead == null)
             {
                 _logger.LogWarning("Lead com id {LeadId} não encontrado.", id);
@@ -87,7 +79,7 @@ namespace CRM_Vendas_API.Controllers
             }
 
             _mapper.Map(dto, lead);
-            await _context.SaveChangesAsync();
+            await _leadRepository.UpdateAsync(lead);
 
             return NoContent();
         }
@@ -98,15 +90,14 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Excluindo lead com id {LeadId}", id);
 
-            var lead = await _context.Leads.FindAsync(id);
+            var lead = await _leadRepository.GetByIdAsync(id);
             if (lead == null)
             {
                 _logger.LogWarning("Lead com id {LeadId} não encontrado.", id);
                 return NotFound();
             }
 
-            _context.Leads.Remove(lead);
-            await _context.SaveChangesAsync();
+            await _leadRepository.DeleteAsync(lead);
 
             return NoContent();
         }

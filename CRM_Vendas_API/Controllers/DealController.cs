@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CRM_Vendas.Domain.Entities;
-using CRM_Vendas_API.Context;
+using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas_API.Entities.DTOs.DealDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +13,13 @@ namespace CRM_Vendas_API.Controllers
     [Route("api/[controller]")]
     public class DealController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IDealRepository _dealRepository;
         private readonly ILogger<DealController> _logger;
         private readonly IMapper _mapper;
 
-        public DealController(AppDbContext context, ILogger<DealController> logger, IMapper mapper)
+        public DealController(IDealRepository dealRepository, ILogger<DealController> logger, IMapper mapper)
         {
-            _context = context;
+            _dealRepository = dealRepository;
             _logger = logger;
             _mapper = mapper;
         }
@@ -29,10 +29,7 @@ namespace CRM_Vendas_API.Controllers
         public async Task<ActionResult<IEnumerable<DealDto>>> GetAll()
         {
             _logger.LogInformation("Buscando todos os negócios.");
-            var deals = await _context.Deals
-                .Include(d => d.Customer)
-                .Include(d => d.Lead)
-                .ToListAsync();
+            var deals = await _dealRepository.GetAllAsync();
 
             return Ok(_mapper.Map<IEnumerable<DealDto>>(deals));
         }
@@ -43,10 +40,7 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Buscando negócio com id {DealId}", id);
 
-            var deal = await _context.Deals
-                .Include(d => d.Customer)
-                .Include(d => d.Lead)
-                .FirstOrDefaultAsync(d => d.Id == id);
+            var deal = await _dealRepository.GetByIdAsync(id);
 
             if (deal == null)
             {
@@ -66,8 +60,7 @@ namespace CRM_Vendas_API.Controllers
             var deal = _mapper.Map<Deal>(dto);
             deal.CreatedAt = DateTime.UtcNow;
 
-            _context.Deals.Add(deal);
-            await _context.SaveChangesAsync();
+            await _dealRepository.AddAsync(deal);
 
             var dealDto = _mapper.Map<DealDto>(deal);
 
@@ -80,7 +73,7 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Atualizando negócio com id {DealId}", id);
 
-            var deal = await _context.Deals.FindAsync(id);
+            var deal = await _dealRepository.GetByIdAsync(id);
             if (deal == null)
             {
                 _logger.LogWarning("Negócio com id {DealId} não encontrado.", id);
@@ -88,7 +81,7 @@ namespace CRM_Vendas_API.Controllers
             }
 
             _mapper.Map(dto, deal);
-            await _context.SaveChangesAsync();
+            await _dealRepository.UpdateAsync(deal);
 
             return NoContent();
         }
@@ -99,15 +92,14 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Removendo negócio com id {DealId}", id);
 
-            var deal = await _context.Deals.FindAsync(id);
+            var deal = await _dealRepository.GetByIdAsync(id);
             if (deal == null)
             {
                 _logger.LogWarning("Negócio com id {DealId} não encontrado.", id);
                 return NotFound();
             }
 
-            _context.Deals.Remove(deal);
-            await _context.SaveChangesAsync();
+            await _dealRepository.DeleteAsync(deal);
 
             return NoContent();
         }

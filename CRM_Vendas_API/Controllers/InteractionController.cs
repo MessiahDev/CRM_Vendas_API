@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CRM_Vendas.Domain.Entities;
-using CRM_Vendas_API.Context;
+using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas_API.Entities.DTOs.InteractionDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +13,13 @@ namespace CRM_Vendas_API.Controllers
     [Route("api/[controller]")]
     public class InteractionController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IInteractionsRepository _interactionsRepository;
         private readonly ILogger<InteractionController> _logger;
         private readonly IMapper _mapper;
 
-        public InteractionController(AppDbContext context, ILogger<InteractionController> logger, IMapper mapper)
+        public InteractionController(IInteractionsRepository interactionsRepository, ILogger<InteractionController> logger, IMapper mapper)
         {
-            _context = context;
+            _interactionsRepository = interactionsRepository;
             _logger = logger;
             _mapper = mapper;
         }
@@ -29,10 +29,7 @@ namespace CRM_Vendas_API.Controllers
         public async Task<ActionResult<IEnumerable<InteractionDto>>> GetAll()
         {
             _logger.LogInformation("Buscando todas as interações.");
-            var interactions = await _context.Interactions
-                .Include(i => i.Customer)
-                .Include(i => i.Lead)
-                .ToListAsync();
+            var interactions = await _interactionsRepository.GetAllAsync();
 
             return Ok(_mapper.Map<IEnumerable<InteractionDto>>(interactions));
         }
@@ -43,10 +40,7 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Buscando interação com id {InteractionId}", id);
 
-            var interaction = await _context.Interactions
-                .Include(i => i.Customer)
-                .Include(i => i.Lead)
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var interaction = await _interactionsRepository.GetByIdAsync(id);
 
             if (interaction == null)
             {
@@ -66,8 +60,7 @@ namespace CRM_Vendas_API.Controllers
             var interaction = _mapper.Map<Interaction>(dto);
             interaction.Date = DateTime.UtcNow;
 
-            _context.Interactions.Add(interaction);
-            await _context.SaveChangesAsync();
+            await _interactionsRepository.AddAsync(interaction);
 
             var interactionDto = _mapper.Map<InteractionDto>(interaction);
 
@@ -80,7 +73,7 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Atualizando interação com id {InteractionId}", id);
 
-            var interaction = await _context.Interactions.FindAsync(id);
+            var interaction = await _interactionsRepository.GetByIdAsync(id);
             if (interaction == null)
             {
                 _logger.LogWarning("Interação com id {InteractionId} não encontrada.", id);
@@ -88,7 +81,7 @@ namespace CRM_Vendas_API.Controllers
             }
 
             _mapper.Map(dto, interaction);
-            await _context.SaveChangesAsync();
+            await _interactionsRepository.UpdateAsync(interaction);
 
             return NoContent();
         }
@@ -99,15 +92,14 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Removendo interação com id {InteractionId}", id);
 
-            var interaction = await _context.Interactions.FindAsync(id);
+            var interaction = await _interactionsRepository.GetByIdAsync(id);
             if (interaction == null)
             {
                 _logger.LogWarning("Interação com id {InteractionId} não encontrada.", id);
                 return NotFound();
             }
 
-            _context.Interactions.Remove(interaction);
-            await _context.SaveChangesAsync();
+            await _interactionsRepository.DeleteAsync(interaction);
 
             return NoContent();
         }

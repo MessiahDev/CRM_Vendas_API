@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Text;
 using CRM_Vendas.Application.Interfaces;
-using CRM_Vendas.Domain.Entities;
 using CRM_Vendas.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -37,9 +36,9 @@ namespace CRM_Vendas.Application.Services
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Email, email)
+{
+                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.GivenName, name)
             };
 
             var token = new JwtSecurityToken(

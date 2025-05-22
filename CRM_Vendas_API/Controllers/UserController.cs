@@ -1,9 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using CRM_Vendas.Application.DTOs.UserDto;
 using CRM_Vendas.Application.Interfaces;
 using CRM_Vendas.Domain.Entities;
 using CRM_Vendas.Domain.Interfaces;
-using CRM_Vendas_API.Context;
 using CRM_Vendas_API.Entities.DTOs.UserDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +15,6 @@ namespace CRM_Vendas_API.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
         private readonly ILogger<UserController> _logger;
         private readonly IMapper _mapper;
         private readonly IAuthenticationService _authenticationService;
@@ -23,14 +22,12 @@ namespace CRM_Vendas_API.Controllers
         private readonly IPasswordService _passwordService;
 
         public UserController(
-            AppDbContext context,
             ILogger<UserController> logger,
             IMapper mapper,
             IAuthenticationService authenticationService,
             IUserRepository userRepository,
             IPasswordService passwordService)
         {
-            _context = context;
             _logger = logger;
             _mapper = mapper;
             _authenticationService = authenticationService;
@@ -44,7 +41,7 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Tentativa de login para o e-mail {Email}", dto.Email);
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            var user = await _userRepository.GetByEmailAsync(dto.Email);
             if (user == null)
             {
                 _logger.LogWarning("Usuário não encontrado para o e-mail {Email}", dto.Email);
@@ -68,6 +65,30 @@ namespace CRM_Vendas_API.Controllers
             });
         }
 
+        // GET: api/User/me
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<UserDto>> ValidateToken()
+        {
+            var email = User?.FindFirst(ClaimTypes.Email)?.Value;
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                _logger.LogWarning("Token sem e-mail ou usuário não autenticado.");
+                return Unauthorized("Token inválido ou expirado.");
+            }
+
+            var user = await _userRepository.GetByEmailAsync(email);
+            if (user == null)
+            {
+                _logger.LogWarning("Usuário não encontrado para o e-mail extraído do token: {Email}", email);
+                return Unauthorized("Usuário não encontrado.");
+            }
+
+            var userDto = _mapper.Map<UserDto>(user);
+            return Ok(userDto);
+        }
+
         // POST: api/User/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserCreateDto dto)
@@ -85,7 +106,6 @@ namespace CRM_Vendas_API.Controllers
             user.PasswordHash = _passwordService.HashPassword(dto.Password);
 
             await _userRepository.AddAsync(user);
-            await _userRepository.SaveChangesAsync();
 
             var token = await _authenticationService.AuthenticateAsync(user.Email, dto.Password);
 
@@ -110,7 +130,7 @@ namespace CRM_Vendas_API.Controllers
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
             _logger.LogInformation("Buscando todos os usuários.");
-            var users = await _context.Users.ToListAsync();
+            var users = await _userRepository.GetAllAsync();
             var usersDto = _mapper.Map<List<UserDto>>(users);
             return Ok(usersDto);
         }
@@ -120,7 +140,7 @@ namespace CRM_Vendas_API.Controllers
         public async Task<ActionResult<UserDto>> GetById(int id)
         {
             _logger.LogInformation("Buscando usuário com id {UserId}", id);
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
             if (user == null)
             {
                 _logger.LogWarning("Usuário com id {UserId} não encontrado.", id);
@@ -139,8 +159,7 @@ namespace CRM_Vendas_API.Controllers
             var user = _mapper.Map<User>(dto);
             user.PasswordHash = HashPassword(dto.Password);
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.AddAsync(user);
 
             var userDto = _mapper.Map<UserDto>(user);
 
@@ -154,7 +173,7 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Atualizando usuário com id {UserId}", id);
 
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
             if (user == null)
             {
                 _logger.LogWarning("Usuário com id {UserId} não encontrado para atualização.", id);
@@ -171,7 +190,7 @@ namespace CRM_Vendas_API.Controllers
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _userRepository.UpdateAsync(user);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -189,15 +208,14 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Excluindo usuário com id {UserId}", id);
 
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
             if (user == null)
             {
                 _logger.LogWarning("Usuário com id {UserId} não encontrado para exclusão.", id);
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.UpdateAsync(user);
 
             return NoContent();
         }

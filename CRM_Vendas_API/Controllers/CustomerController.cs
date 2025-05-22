@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using CRM_Vendas.Domain.Entities;
-using CRM_Vendas_API.Context;
+using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas_API.Entities.DTOs.CustomerDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CRM_Vendas_API.Controllers
 {
@@ -13,13 +12,13 @@ namespace CRM_Vendas_API.Controllers
     [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ICustomerRepository _customerRepository;
         private readonly ILogger<CustomerController> _logger;
         private readonly IMapper _mapper;
 
-        public CustomerController(AppDbContext context, ILogger<CustomerController> logger, IMapper mapper)
+        public CustomerController(ICustomerRepository customerRepository, ILogger<CustomerController> logger, IMapper mapper)
         {
-            _context = context;
+            _customerRepository = customerRepository;
             _logger = logger;
             _mapper = mapper;
         }
@@ -29,7 +28,7 @@ namespace CRM_Vendas_API.Controllers
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAll()
         {
             _logger.LogInformation("Buscando todos os clientes.");
-            var customers = await _context.Customers.ToListAsync();
+            var customers = await _customerRepository.GetAllAsync();
             return Ok(_mapper.Map<IEnumerable<CustomerDto>>(customers));
         }
 
@@ -38,7 +37,7 @@ namespace CRM_Vendas_API.Controllers
         public async Task<ActionResult<CustomerDto>> GetById(int id)
         {
             _logger.LogInformation("Buscando cliente com id {CustomerId}", id);
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerRepository.GetByIdAsync(id);
             if (customer == null)
             {
                 _logger.LogWarning("Cliente com id {CustomerId} não encontrado.", id);
@@ -57,8 +56,7 @@ namespace CRM_Vendas_API.Controllers
             var customer = _mapper.Map<Customer>(dto);
             customer.ConvertedAt = DateTime.UtcNow;
 
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
+            await _customerRepository.AddAsync(customer);
 
             var customerDto = _mapper.Map<CustomerDto>(customer);
 
@@ -71,7 +69,7 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Atualizando cliente com id {CustomerId}", id);
 
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerRepository.GetByIdAsync(id);
             if (customer == null)
             {
                 _logger.LogWarning("Cliente com id {CustomerId} não encontrado.", id);
@@ -79,7 +77,7 @@ namespace CRM_Vendas_API.Controllers
             }
 
             _mapper.Map(dto, customer);
-            await _context.SaveChangesAsync();
+            await _customerRepository.UpdateAsync(customer);
 
             return NoContent();
         }
@@ -90,15 +88,14 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Excluindo cliente com id {CustomerId}", id);
 
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerRepository.GetByIdAsync(id);
             if (customer == null)
             {
                 _logger.LogWarning("Cliente com id {CustomerId} não encontrado.", id);
                 return NotFound();
             }
 
-            _context.Customers.Remove(customer);
-            await _context.SaveChangesAsync();
+            await _customerRepository.UpdateAsync(customer);
 
             return NoContent();
         }

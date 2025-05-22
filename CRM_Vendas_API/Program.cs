@@ -6,7 +6,6 @@ using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas.Infrastructure.Repositories;
 using CRM_Vendas_API.Context;
 using CRM_Vendas_API.MappingProfile;
-using CRM_Vendas_API.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -81,10 +80,13 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddLogging();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ILeadRepository, LeadRepository>();
+builder.Services.AddScoped<IInteractionsRepository, InteractionsRepository>();
+builder.Services.AddScoped<IDealRepository, DealRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.Services.AddCors(options =>
 {

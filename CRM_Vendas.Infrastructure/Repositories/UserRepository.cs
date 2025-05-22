@@ -8,17 +8,24 @@ namespace CRM_Vendas.Infrastructure.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _context;
-        private readonly DbSet<User> _dbSet;
 
         public UserRepository(AppDbContext context)
         {
             _context = context;
-            _dbSet = _context.Set<User>();
         }
 
-        public async Task AddAsync(User user)
+        public async Task<IEnumerable<User>> GetAllAsync()
         {
-            await _dbSet.AddAsync(user);
+            return await _context.Users
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<User?> GetByIdAsync(int id)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<User?> GetByEmailAsync(string email)
@@ -28,9 +35,27 @@ namespace CRM_Vendas.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task SaveChangesAsync()
+        public async Task AddAsync(User user)
         {
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(User user)
+        {
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.Users.AnyAsync(u => u.Id == id);
         }
     }
 }
