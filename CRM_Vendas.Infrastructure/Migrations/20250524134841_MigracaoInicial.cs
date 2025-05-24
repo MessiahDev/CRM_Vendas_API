@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CRM_Vendas_API.Migrations
+namespace CRM_Vendas.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class MigracaoInicial : Migration

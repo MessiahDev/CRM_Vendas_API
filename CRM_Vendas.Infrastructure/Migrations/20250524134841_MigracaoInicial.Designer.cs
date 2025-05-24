@@ -9,10 +9,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CRM_Vendas_API.Migrations
+namespace CRM_Vendas.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250519003925_MigracaoInicial")]
+    [Migration("20250524134841_MigracaoInicial")]
     partial class MigracaoInicial
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace CRM_Vendas_API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Customer", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Customer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,7 +57,7 @@ namespace CRM_Vendas_API.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Deal", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Deal", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -94,7 +94,7 @@ namespace CRM_Vendas_API.Migrations
                     b.ToTable("Deals");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Interaction", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Interaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -129,7 +129,7 @@ namespace CRM_Vendas_API.Migrations
                     b.ToTable("Interactions");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Lead", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Lead", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -172,7 +172,7 @@ namespace CRM_Vendas_API.Migrations
                     b.ToTable("Leads");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.User", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -199,9 +199,9 @@ namespace CRM_Vendas_API.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Customer", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Customer", b =>
                 {
-                    b.HasOne("CRM_Vendas_API.Entities.Models.User", "User")
+                    b.HasOne("CRM_Vendas.Domain.Entities.User", "User")
                         .WithMany("Customers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -210,15 +210,15 @@ namespace CRM_Vendas_API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Deal", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Deal", b =>
                 {
-                    b.HasOne("CRM_Vendas_API.Entities.Models.Customer", "Customer")
+                    b.HasOne("CRM_Vendas.Domain.Entities.Customer", "Customer")
                         .WithMany("Deals")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CRM_Vendas_API.Entities.Models.Lead", "Lead")
+                    b.HasOne("CRM_Vendas.Domain.Entities.Lead", "Lead")
                         .WithMany("Deals")
                         .HasForeignKey("LeadId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -229,14 +229,14 @@ namespace CRM_Vendas_API.Migrations
                     b.Navigation("Lead");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Interaction", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Interaction", b =>
                 {
-                    b.HasOne("CRM_Vendas_API.Entities.Models.Customer", "Customer")
+                    b.HasOne("CRM_Vendas.Domain.Entities.Customer", "Customer")
                         .WithMany("Interactions")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("CRM_Vendas_API.Entities.Models.Lead", "Lead")
+                    b.HasOne("CRM_Vendas.Domain.Entities.Lead", "Lead")
                         .WithMany("Interactions")
                         .HasForeignKey("LeadId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -246,15 +246,15 @@ namespace CRM_Vendas_API.Migrations
                     b.Navigation("Lead");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Lead", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Lead", b =>
                 {
-                    b.HasOne("CRM_Vendas_API.Entities.Models.Customer", "Customer")
+                    b.HasOne("CRM_Vendas.Domain.Entities.Customer", "Customer")
                         .WithMany("Leads")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CRM_Vendas_API.Entities.Models.User", "User")
+                    b.HasOne("CRM_Vendas.Domain.Entities.User", "User")
                         .WithMany("Leads")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -265,7 +265,7 @@ namespace CRM_Vendas_API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Customer", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Customer", b =>
                 {
                     b.Navigation("Deals");
 
@@ -274,14 +274,14 @@ namespace CRM_Vendas_API.Migrations
                     b.Navigation("Leads");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.Lead", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.Lead", b =>
                 {
                     b.Navigation("Deals");
 
                     b.Navigation("Interactions");
                 });
 
-            modelBuilder.Entity("CRM_Vendas_API.Entities.Models.User", b =>
+            modelBuilder.Entity("CRM_Vendas.Domain.Entities.User", b =>
                 {
                     b.Navigation("Customers");
 
