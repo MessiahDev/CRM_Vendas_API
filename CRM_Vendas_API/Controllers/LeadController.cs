@@ -51,7 +51,7 @@ namespace CRM_Vendas_API.Controllers
 
         // POST: api/Lead
         [HttpPost]
-        public async Task<ActionResult<LeadDto>> CreateLead(LeadCreateDto dto)
+        public async Task<ActionResult<LeadDto>> CreateLead([FromBody] LeadCreateDto dto)
         {
             _logger.LogInformation("Criando novo lead.");
 

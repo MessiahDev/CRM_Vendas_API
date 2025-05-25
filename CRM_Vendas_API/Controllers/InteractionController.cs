@@ -31,7 +31,19 @@ namespace CRM_Vendas_API.Controllers
             _logger.LogInformation("Buscando todas as interações.");
             var interactions = await _interactionsRepository.GetAllAsync();
 
-            return Ok(_mapper.Map<IEnumerable<InteractionDto>>(interactions));
+            var dtos = interactions.Select(i => new InteractionDto
+            {
+                Id = i.Id,
+                Type = i.Type,
+                Notes = i.Notes,
+                Date = i.Date,
+                LeadId = i.LeadId,
+                LeadName = i.Lead?.Name,
+                CustomerId = i.CustomerId,
+                CustomerName = i.Customer?.Name
+            });
+
+            return Ok(dtos);
         }
 
         // GET: api/Interaction/5

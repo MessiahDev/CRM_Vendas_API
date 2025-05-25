@@ -3,7 +3,7 @@
     public enum LeadStatus
     {
         Novo,
-        EmContato,
+        Contactado,
         Qualificado,
         Perdido,
         Convertido

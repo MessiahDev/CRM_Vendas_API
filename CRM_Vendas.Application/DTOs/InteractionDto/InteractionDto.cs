@@ -6,7 +6,11 @@
         public string Type { get; set; } = null!;
         public string? Notes { get; set; }
         public DateTime Date { get; set; }
+
         public int? LeadId { get; set; }
+        public string? LeadName { get; set; }
+
         public int? CustomerId { get; set; }
+        public string? CustomerName { get; set; }
     }
 }
