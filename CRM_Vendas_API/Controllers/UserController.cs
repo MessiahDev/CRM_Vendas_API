@@ -124,6 +124,52 @@ namespace CRM_Vendas_API.Controllers
             });
         }
 
+        // POST: api/User/forgot
+        [HttpPost("forgot")]
+        public async Task<IActionResult> ForgotPassword([FromBody] UserForgotPasswordDto dto)
+        {
+            _logger.LogInformation("Solicitação de redefinição de senha recebida para: {Email}", dto.Email);
+
+            var user = await _userRepository.GetByEmailAsync(dto.Email);
+            if (user == null)
+            {
+                _logger.LogWarning("E-mail não encontrado: {Email}", dto.Email);
+                return Ok(new { Message = "Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha." });
+            }
+
+            var resetToken = _authenticationService.GenerateToken(user.Name, user.Email);
+            user.PasswordResetToken = resetToken;
+
+            await _userRepository.UpdateAsync(user);
+
+            _logger.LogInformation("Token de redefinição de senha para {Email}: {Token}", dto.Email, resetToken);
+
+            return Ok(new { Message = "Token gerado com sucesso.", Token = resetToken });
+        }
+
+        // POST: api/User/reset
+        [HttpPost("reset")]
+        public async Task<IActionResult> ResetPassword([FromBody] UserResetPasswordDto dto)
+        {
+            _logger.LogInformation("Solicitação de reset de senha recebida com token.");
+
+            var user = await _userRepository.GetByResetTokenAsync(dto.Token);
+            if (user == null)
+            {
+                _logger.LogWarning("Token inválido ou expirado: {Token}", dto.Token);
+                return BadRequest("Token inválido ou expirado.");
+            }
+
+            user.PasswordHash = _passwordService.HashPassword(dto.NewPassword);
+            user.PasswordResetToken = null;
+
+            await _userRepository.UpdateAsync(user);
+
+            _logger.LogInformation("Senha redefinida com sucesso para {Email}.", user.Email);
+
+            return Ok(new { Message = "Senha redefinida com sucesso." });
+        }
+
         // GET: api/User
         [Authorize]
         [HttpGet]
@@ -157,7 +203,7 @@ namespace CRM_Vendas_API.Controllers
             _logger.LogInformation("Criando novo usuário.");
 
             var user = _mapper.Map<User>(dto);
-            user.PasswordHash = HashPassword(dto.Password);
+            user.PasswordHash = _passwordService.HashPassword(dto.Password);
 
             await _userRepository.AddAsync(user);
 
@@ -215,14 +261,9 @@ namespace CRM_Vendas_API.Controllers
                 return NotFound();
             }
 
-            await _userRepository.UpdateAsync(user);
+            await _userRepository.DeleteAsync(user);
 
             return NoContent();
-        }
-
-        private string HashPassword(string password)
-        {
-            return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(password));
         }
     }
 }

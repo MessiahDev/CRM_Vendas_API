@@ -17,7 +17,8 @@ namespace CRM_Vendas.Infrastructure.Repositories
         public async Task<IEnumerable<Deal>> GetAllAsync()
         {
             return await _context.Deals
-                .AsNoTracking()
+                .Include(i => i.Customer)
+                .Include(i => i.Lead)
                 .ToListAsync();
         }
 

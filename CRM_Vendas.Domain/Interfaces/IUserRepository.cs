@@ -11,5 +11,6 @@ namespace CRM_Vendas.Domain.Interfaces
         Task UpdateAsync(User user);
         Task DeleteAsync(User user);
         Task<bool> ExistsAsync(int id);
+        Task<User?> GetByResetTokenAsync(string token);
     }
 }

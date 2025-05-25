@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CRM_Vendas.Domain.Entities;
 using CRM_Vendas.Domain.Interfaces;
+using CRM_Vendas_API.Entities.DTOs.DealDto;
 using CRM_Vendas_API.Entities.DTOs.LeadDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,23 @@ namespace CRM_Vendas_API.Controllers
             _logger.LogInformation("Buscando todos os leads.");
             var leads = await _leadRepository.GetAllAsync();
 
-            return Ok(_mapper.Map<IEnumerable<LeadDto>>(leads));
+            var dtos = leads.Select(l => new LeadDto
+            {
+                Id = l.Id,
+                Name = l.Name,
+                Email = l.Email,
+                Phone = l.Phone,
+                Source = l.Source,
+                Status = l.Status,
+                CreatedAt = l.CreatedAt,
+                UserId = l.UserId,
+                UserName = l.User?.Name,
+                CustomerId = l.CustomerId,
+                CustomerName = l.Customer?.Name,
+            });
+            
+
+            return Ok(dtos);
         }
 
         // GET: api/Lead/5

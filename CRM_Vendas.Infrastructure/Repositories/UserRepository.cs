@@ -57,5 +57,10 @@ namespace CRM_Vendas.Infrastructure.Repositories
         {
             return await _context.Users.AnyAsync(u => u.Id == id);
         }
+
+        public async Task<User?> GetByResetTokenAsync(string token)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == token);
+        }
     }
 }

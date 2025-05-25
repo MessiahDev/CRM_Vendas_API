@@ -12,5 +12,8 @@ namespace CRM_Vendas_API.Entities.DTOs.LeadDto
         public LeadStatus Status { get; set; } = LeadStatus.Novo;
         public DateTime CreatedAt { get; set; }
         public int UserId { get; set; }
+        public string? UserName { get; set; }
+        public int CustomerId { get; set; }
+        public string? CustomerName { get; set; }
     }
 }

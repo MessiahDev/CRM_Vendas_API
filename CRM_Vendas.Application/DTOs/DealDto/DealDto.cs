@@ -10,5 +10,8 @@ namespace CRM_Vendas_API.Entities.DTOs.DealDto
         public DealStage Stage { get; set; } = DealStage.Novo;
         public DateTime CreatedAt { get; set; }
         public int CustomerId { get; set; }
+        public string? CustomerName { get; set; }
+        public int LeadId { get; set; }
+        public string? LeadName { get; set; }
     }
 }

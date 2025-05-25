@@ -2,9 +2,10 @@
 using CRM_Vendas.Domain.Entities;
 using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas_API.Entities.DTOs.DealDto;
+using CRM_Vendas_API.Entities.DTOs.InteractionDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace CRM_Vendas_API.Controllers
 {
@@ -31,7 +32,20 @@ namespace CRM_Vendas_API.Controllers
             _logger.LogInformation("Buscando todos os negócios.");
             var deals = await _dealRepository.GetAllAsync();
 
-            return Ok(_mapper.Map<IEnumerable<DealDto>>(deals));
+            var dtos = deals.Select(d => new DealDto
+            {
+                Id = d.Id,
+                Title = d.Title,
+                Value = d.Value,
+                Stage = d.Stage,
+                CreatedAt = d.CreatedAt,
+                CustomerId = d.CustomerId,
+                CustomerName = d.Customer?.Name,
+                LeadId = d.LeadId,
+                LeadName = d.Lead?.Name,
+            });
+
+            return Ok(dtos);
         }
 
         // GET: api/Deal/5
