@@ -1,4 +1,5 @@
-﻿using CRM_Vendas_API.Entities.Models.Enums;
+﻿using CRM_Vendas.Domain.Entities;
+using CRM_Vendas_API.Entities.Models.Enums;
 
 namespace CRM_Vendas_API.Entities.DTOs.LeadDto
 {
@@ -12,8 +13,8 @@ namespace CRM_Vendas_API.Entities.DTOs.LeadDto
         public LeadStatus Status { get; set; } = LeadStatus.Novo;
         public DateTime CreatedAt { get; set; }
         public int UserId { get; set; }
-        public string? UserName { get; set; }
+        public User? User { get; set; }
         public int CustomerId { get; set; }
-        public string? CustomerName { get; set; }
+        public Customer? Customer { get; set; }
     }
 }

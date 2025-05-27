@@ -41,9 +41,9 @@ namespace CRM_Vendas_API.Controllers
                 Status = l.Status,
                 CreatedAt = l.CreatedAt,
                 UserId = l.UserId,
-                UserName = l.User?.Name,
+                User = l.User,
                 CustomerId = l.CustomerId,
-                CustomerName = l.Customer?.Name,
+                Customer = l.Customer,
             });
 
             return Ok(dtos);

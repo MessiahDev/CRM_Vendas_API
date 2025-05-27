@@ -40,9 +40,9 @@ namespace CRM_Vendas_API.Controllers
                 Stage = d.Stage,
                 CreatedAt = d.CreatedAt,
                 CustomerId = d.CustomerId,
-                CustomerName = d.Customer?.Name,
+                Customer = d.Customer,
                 LeadId = d.LeadId,
-                LeadName = d.Lead?.Name,
+                Lead = d.Lead,
             });
 
             return Ok(dtos);
