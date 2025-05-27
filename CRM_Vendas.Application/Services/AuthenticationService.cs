@@ -1,10 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using CRM_Vendas.Application.Interfaces;
+﻿using CRM_Vendas.Application.Interfaces;
 using CRM_Vendas.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace CRM_Vendas.Application.Services
 {
@@ -26,20 +26,21 @@ namespace CRM_Vendas.Application.Services
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 return string.Empty;
 
-            return GenerateToken(user.Name, user.Email);
+            return GenerateToken(user.Name, user.Email, user.Role.ToString());
         }
 
-        public string GenerateToken(string name, string email)
+        public string GenerateToken(string name, string email, string role)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
-{
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Email, email)
-            };
+            {
+                    new Claim(ClaimTypes.Name, name),
+                    new Claim(ClaimTypes.Email, email),
+                    new Claim(ClaimTypes.Role, role)
+                };
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],

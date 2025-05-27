@@ -2,6 +2,7 @@
 using CRM_Vendas.Domain.Entities;
 using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas_API.Entities.DTOs.CustomerDto;
+using CRM_Vendas_API.Entities.DTOs.LeadDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +30,19 @@ namespace CRM_Vendas_API.Controllers
         {
             _logger.LogInformation("Buscando todos os clientes.");
             var customers = await _customerRepository.GetAllAsync();
-            return Ok(_mapper.Map<IEnumerable<CustomerDto>>(customers));
+
+            var dtos = customers.Select(l => new CustomerDto
+            {
+                Id = l.Id,
+                Name = l.Name,
+                Email = l.Email,
+                Phone = l.Phone,
+                ConvertedAt = l.ConvertedAt,
+                UserId = l.UserId,
+                User = l.User
+            }).ToList();
+
+            return Ok(dtos);
         }
 
         // GET: api/Customer/5
@@ -95,7 +108,7 @@ namespace CRM_Vendas_API.Controllers
                 return NotFound();
             }
 
-            await _customerRepository.UpdateAsync(customer);
+            await _customerRepository.DeleteAsync(customer);
 
             return NoContent();
         }

@@ -1,4 +1,6 @@
-﻿namespace CRM_Vendas_API.Entities.DTOs.CustomerDto
+﻿using CRM_Vendas.Domain.Entities;
+
+namespace CRM_Vendas_API.Entities.DTOs.CustomerDto
 {
     public class CustomerDto
     {
@@ -8,5 +10,6 @@
         public string? Phone { get; set; }
         public DateTime ConvertedAt { get; set; }
         public int UserId { get; set; }
+        public User? User { get; set; }
     }
 }

@@ -3,6 +3,6 @@
     public interface IAuthenticationService
     {
         Task<string> AuthenticateAsync(string email, string password);
-        string GenerateToken(string name, string email);
+        string GenerateToken(string name, string email, string role);
     }
 }

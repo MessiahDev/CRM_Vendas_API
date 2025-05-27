@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using CRM_Vendas.Application.DTOs.UserDto;
 using CRM_Vendas.Application.Interfaces;
 using CRM_Vendas.Domain.Entities;
@@ -8,6 +7,7 @@ using CRM_Vendas_API.Entities.DTOs.UserDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CRM_Vendas_API.Controllers
 {
@@ -35,7 +35,6 @@ namespace CRM_Vendas_API.Controllers
             _passwordService = passwordService;
         }
 
-        // POST: api/User/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
         {
@@ -49,7 +48,6 @@ namespace CRM_Vendas_API.Controllers
             }
 
             var token = await _authenticationService.AuthenticateAsync(dto.Email, dto.Password);
-
             if (string.IsNullOrWhiteSpace(token))
             {
                 _logger.LogWarning("Senha incorreta para o e-mail {Email}", dto.Email);
@@ -65,7 +63,6 @@ namespace CRM_Vendas_API.Controllers
             });
         }
 
-        // GET: api/User/me
         [Authorize]
         [HttpGet("me")]
         public async Task<ActionResult<UserDto>> ValidateToken()
@@ -89,7 +86,6 @@ namespace CRM_Vendas_API.Controllers
             return Ok(userDto);
         }
 
-        // POST: api/User/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserCreateDto dto)
         {
@@ -108,7 +104,6 @@ namespace CRM_Vendas_API.Controllers
             await _userRepository.AddAsync(user);
 
             var token = await _authenticationService.AuthenticateAsync(user.Email, dto.Password);
-
             if (string.IsNullOrWhiteSpace(token))
             {
                 _logger.LogError("Erro ao gerar token após registro para o e-mail: {Email}", user.Email);
@@ -124,7 +119,6 @@ namespace CRM_Vendas_API.Controllers
             });
         }
 
-        // POST: api/User/forgot
         [HttpPost("forgot")]
         public async Task<IActionResult> ForgotPassword([FromBody] UserForgotPasswordDto dto)
         {
@@ -137,7 +131,7 @@ namespace CRM_Vendas_API.Controllers
                 return Ok(new { Message = "Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha." });
             }
 
-            var resetToken = _authenticationService.GenerateToken(user.Name, user.Email);
+            var resetToken = _authenticationService.GenerateToken(user.Name, user.Email, user.Role.ToString());
             user.PasswordResetToken = resetToken;
 
             await _userRepository.UpdateAsync(user);
@@ -147,7 +141,6 @@ namespace CRM_Vendas_API.Controllers
             return Ok(new { Message = "Token gerado com sucesso.", Token = resetToken });
         }
 
-        // POST: api/User/reset
         [HttpPost("reset")]
         public async Task<IActionResult> ResetPassword([FromBody] UserResetPasswordDto dto)
         {
@@ -170,7 +163,6 @@ namespace CRM_Vendas_API.Controllers
             return Ok(new { Message = "Senha redefinida com sucesso." });
         }
 
-        // GET: api/User
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
@@ -181,7 +173,6 @@ namespace CRM_Vendas_API.Controllers
             return Ok(usersDto);
         }
 
-        // GET: api/User/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> GetById(int id)
         {
@@ -195,7 +186,6 @@ namespace CRM_Vendas_API.Controllers
             return Ok(_mapper.Map<UserDto>(user));
         }
 
-        // POST: api/User
         [Authorize]
         [HttpPost]
         public async Task<ActionResult<UserDto>> Create(UserCreateDto dto)
@@ -212,7 +202,6 @@ namespace CRM_Vendas_API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, userDto);
         }
 
-        // PUT: api/User/5
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UserUpdateDto dto)
@@ -247,7 +236,6 @@ namespace CRM_Vendas_API.Controllers
             return NoContent();
         }
 
-        // DELETE: api/User/5
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

@@ -45,7 +45,6 @@ namespace CRM_Vendas_API.Controllers
                 CustomerId = l.CustomerId,
                 CustomerName = l.Customer?.Name,
             });
-            
 
             return Ok(dtos);
         }
