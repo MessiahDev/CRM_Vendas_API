@@ -12,8 +12,6 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -44,9 +42,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new() { Title = "CRM_Vendas_API", Version = "v1" });
@@ -90,11 +86,11 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowVercelFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins("https://crm-vendas-frontend.vercel.app")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -103,12 +99,12 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-if (!app.Environment.IsProduction())
+if (app.Environment.IsProduction())
 {
     app.UseHttpsRedirection();
 }
 
-app.UseCors();
+app.UseCors("AllowVercelFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
