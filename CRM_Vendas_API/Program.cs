@@ -107,6 +107,13 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Homologaca
     app.UseSwaggerUI();
 }
 
+if (!app.Environment.IsProduction())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseHttpsRedirection();
+}
+
 app.UseHttpsRedirection();
 
 app.UseCors();
