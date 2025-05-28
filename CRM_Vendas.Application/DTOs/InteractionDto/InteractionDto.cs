@@ -1,4 +1,6 @@
-﻿namespace CRM_Vendas_API.Entities.DTOs.InteractionDto
+﻿using CRM_Vendas.Domain.Entities;
+
+namespace CRM_Vendas_API.Entities.DTOs.InteractionDto
 {
     public class InteractionDto
     {
@@ -8,9 +10,9 @@
         public DateTime Date { get; set; }
 
         public int? LeadId { get; set; }
-        public string? LeadName { get; set; }
+        public Lead? Lead { get; set; }
 
         public int? CustomerId { get; set; }
-        public string? CustomerName { get; set; }
+        public Customer? Customer { get; set; }
     }
 }

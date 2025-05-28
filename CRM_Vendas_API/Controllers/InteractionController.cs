@@ -37,9 +37,9 @@ namespace CRM_Vendas_API.Controllers
                 Notes = i.Notes,
                 Date = i.Date,
                 LeadId = i.LeadId,
-                LeadName = i.Lead?.Name,
+                Lead = i.Lead,
                 CustomerId = i.CustomerId,
-                CustomerName = i.Customer?.Name
+                Customer = i.Customer
             });
 
             return Ok(dtos);
