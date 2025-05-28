@@ -91,7 +91,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("https://crm-vendas-frontend.vercel.app", "http://localhost:5173")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
