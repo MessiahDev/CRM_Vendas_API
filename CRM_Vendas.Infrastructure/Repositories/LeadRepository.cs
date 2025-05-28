@@ -19,6 +19,8 @@ namespace CRM_Vendas.Infrastructure.Repositories
             return await _context.Leads
                 .Include(i => i.User)
                 .Include(i => i.Customer)
+                .Include(i => i.Interactions)
+                .Include(i => i.Deals)
                 .ToListAsync();
         }
 
