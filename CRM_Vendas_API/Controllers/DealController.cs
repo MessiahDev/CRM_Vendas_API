@@ -2,10 +2,8 @@
 using CRM_Vendas.Domain.Entities;
 using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas_API.Entities.DTOs.DealDto;
-using CRM_Vendas_API.Entities.DTOs.InteractionDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 
 namespace CRM_Vendas_API.Controllers
 {

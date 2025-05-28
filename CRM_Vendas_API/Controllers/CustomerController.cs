@@ -2,7 +2,6 @@
 using CRM_Vendas.Domain.Entities;
 using CRM_Vendas.Domain.Interfaces;
 using CRM_Vendas_API.Entities.DTOs.CustomerDto;
-using CRM_Vendas_API.Entities.DTOs.LeadDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

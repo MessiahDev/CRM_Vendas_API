@@ -83,12 +83,13 @@ builder.Services.AddScoped<ILeadRepository, LeadRepository>();
 builder.Services.AddScoped<IInteractionsRepository, InteractionsRepository>();
 builder.Services.AddScoped<IDealRepository, DealRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVercelFrontend", policy =>
     {
-        policy.WithOrigins("https://crm-vendas-frontend.vercel.app")
+        policy.WithOrigins("https://crm-vendas-frontend.vercel.app", "http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -104,7 +105,17 @@ if (app.Environment.IsProduction())
     app.UseHttpsRedirection();
 }
 
-app.UseCors("AllowVercelFrontend");
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors(policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+}
+else
+{
+    app.UseCors("AllowVercelFrontend");
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
