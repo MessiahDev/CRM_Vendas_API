@@ -100,22 +100,9 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-if (app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
+app.UseHttpsRedirection();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseCors(policy =>
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod());
-}
-else
-{
-    app.UseCors("AllowVercelFrontend");
-}
+app.UseCors("AllowVercelFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
